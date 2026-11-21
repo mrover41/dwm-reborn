@@ -4,3 +4,4 @@ CompileFlags:
     - "-I../include/"
     - "-I../../include/"
     - "-xc"
+    - "-I/usr/include/freetype2"

@@ -17,6 +17,14 @@ extern int bh;
 extern int lrpad;
 
 #include <types/cursor.h>
+#include <types/clr.h>
 #include <enums/cursor.h>
 
 extern Cur *cursor[CurLast];
+extern Clr **scheme;
+
+extern const char autostartblocksh[];
+extern const char autostartsh[];
+extern const char broken[];
+extern const char dwmdir[];
+extern const char localshare[];

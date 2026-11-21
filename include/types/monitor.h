@@ -45,4 +45,12 @@ struct Client {
 struct Layout {
 	const char *symbol;
 	void (*arrange)(Monitor *);
+
+	/*can be NULL for default*/
+	void (*attach)(Client *);
+	void (*push_focus)(Client *);
+	void (*detach)(Client *);
+	void (*detachstack)(Client *);
+	void (*pop)(Client *);
+	void (*restack)(Monitor *);
 };
