@@ -4,9 +4,7 @@
 
 void incnmaster(const Arg *arg);
 void killclient(const Arg *arg);
-void movemouse(const Arg *arg);
-void quit(const Arg *arg); //TODO: Just add this and other
-void resizemouse(const Arg *arg);
+void quit(const Arg *arg);
 void setlayout(const Arg *arg);
 void setmfact(const Arg *arg);
 void spawn(const Arg *arg);

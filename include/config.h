@@ -44,7 +44,7 @@ static const float mfact     = 0.50; /* equal-width master/stack columns */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
-static const int refreshrate = 120;  /* refresh rate (per second) for client move/resize */
+static const int refreshrate = 144;  /* refresh rate (per second) for client move/resize */
 
 #include "fibonacci.c"
 static const Layout layouts[] = {

@@ -9,3 +9,14 @@ extern Monitor *mons, *selmon;
 extern Atom wmatom[WMLast], netatom[NetLast];
 extern Display *dpy;
 extern Window root, wmcheckwin;
+extern int running;
+extern int bh;
+extern int screen;
+extern int sw, sh;
+extern int bh;
+extern int lrpad;
+
+#include <types/cursor.h>
+#include <enums/cursor.h>
+
+extern Cur *cursor[CurLast];
