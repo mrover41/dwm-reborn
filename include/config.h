@@ -2,9 +2,6 @@
 
 /* See LICENSE file for copyright and license details. */
 
-#include "movestack.c"
-#include "focusdir.c"
-
 /* appearance */
 static const unsigned int borderpx  = 2;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
@@ -27,8 +24,6 @@ static const char *colors[][3]      = {
 /* last tag is the hidden scratchpad, not a workspace */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "S" };
 
-#include "scrollcompat.c"
-
 static const Rule rules[] = {
 	/* xprop(1):
 	 *	WM_CLASS(STRING) = instance, class
@@ -50,7 +45,7 @@ static const int refreshrate = 144;  /* refresh rate (per second) for client mov
 #include <types/monitor.h>
 static const Layout layouts[] = {
 	{ ">>>",      scrolltile, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ "[]=",      tile, NULL, NULL, NULL, NULL, NULL, NULL},
+	{ "[]=",      tile, NULL, NULL, NULL, NULL, NULL, NULL },
 	//{ "[\\]",     dwindle },
 	//{ "><>",      NULL },
 	//{ "[M]",      monocle },
