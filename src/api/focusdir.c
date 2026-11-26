@@ -1,4 +1,4 @@
-void
+/*void
 focusdir(const Arg *arg)
 {
 	Client *s = selmon->sel, *f = NULL, *c, *next;
@@ -24,20 +24,20 @@ focusdir(const Arg *arg)
 			continue;
 
 		switch (arg->i) {
-		case 0: /* left */
+		case 0:
 			dist = s->x - c->x - c->w;
 			client_score = dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) + abs(s->y - c->y);
 			break;
-		case 1: /* right */
+		case 1:
 			dist = c->x - s->x - s->w;
 			client_score = dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) + abs(c->y - s->y);
 			break;
-		case 2: /* up */
+		case 2:
 			dist = s->y - c->y - c->h;
 			client_score = dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) + abs(s->x - c->x);
 			break;
 		default:
-		case 3: /* down */
+		case 3:
 			dist = c->y - s->y - s->h;
 			client_score = dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) + abs(c->x - s->x);
 			break;
@@ -57,4 +57,7 @@ focusdir(const Arg *arg)
 		focus(f);
 		restack(f->mon);
 	}
-}
+}*/
+
+/* Keep this translation unit non-empty for -pedantic. */
+typedef int focusdir_placeholder;

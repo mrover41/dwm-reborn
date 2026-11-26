@@ -3,31 +3,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xft/Xft.h>
 
-typedef struct {
-	Cursor cursor;
-} Cur;
-
-typedef struct Fnt {
-	Display *dpy;
-	unsigned int h;
-	XftFont *xfont;
-	FcPattern *pattern;
-	struct Fnt *next;
-} Fnt;
-
-enum { ColFg, ColBg, ColBorder }; /* Clr scheme index */
-typedef XftColor Clr;
-
-typedef struct {
-	unsigned int w, h;
-	Display *dpy;
-	int screen;
-	Window root;
-	Drawable drawable;
-	GC gc;
-	Clr *scheme;
-	Fnt *fonts;
-} Drw;
+#include <types/drw.h>
+#include <types/cursor.h>
 
 /* Drawable abstraction */
 Drw *drw_create(Display *dpy, int screen, Window win, unsigned int w, unsigned int h);

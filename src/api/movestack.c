@@ -1,3 +1,9 @@
+#include <global.h>
+#include <config.h>
+#include <macros.h>
+#include <local/client_stack.h>
+#include <local/monitor.h>
+
 void
 movestack(const Arg *arg) {
 	Client *c = NULL, *p = NULL, *pc = NULL, *i;

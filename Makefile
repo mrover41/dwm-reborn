@@ -6,7 +6,7 @@ include config.mk
 SRCDIR = src
 BUILDDIR = build
 
-SRC = $(wildcard $(SRCDIR)/*.c)
+SRC = $(shell find $(SRCDIR) -type f -name "*.c" ! -name "transient.c" | sort)
 OBJ = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRC))
 TARGET = $(BUILDDIR)/dwm
 
@@ -27,8 +27,8 @@ clean:
 
 dist: clean
 	mkdir -p dwm-${VERSION}
-	cp -R LICENSE Makefile README config.def.h config.mk\
-		dwm.1 drw.h util.h ${SRC} dwm.png transient.c dwm-${VERSION}
+	cp -R LICENSE Makefile README config.mk config.h include src \
+		dwm.1 dwm.png dwm-${VERSION}
 	tar -cf dwm-${VERSION}.tar dwm-${VERSION}
 	gzip dwm-${VERSION}.tar
 	rm -rf dwm-${VERSION}

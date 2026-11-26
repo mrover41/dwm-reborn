@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include <api/commands.h>
+#include <api/util.h>
 #include <enums/cursor.h>
 #include <types/cursor.h>
 #include <types/monitor.h>
@@ -14,6 +15,7 @@
 #include <local/handlers.h>
 #include <global.h>
 
+#include <macros.h>
 #include <config.h>
 
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)

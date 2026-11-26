@@ -13,8 +13,10 @@ extern int running;
 extern int bh;
 extern int screen;
 extern int sw, sh;
-extern int bh;
 extern int lrpad;
+extern unsigned int numlockmask;
+extern char stext[256];
+extern int (*xerrorxlib)(Display *, XErrorEvent *);
 
 #include <types/cursor.h>
 #include <types/clr.h>
@@ -22,6 +24,9 @@ extern int lrpad;
 
 extern Cur *cursor[CurLast];
 extern Clr **scheme;
+
+#include <types/drw.h>
+extern Drw *drw;
 
 extern const char autostartblocksh[];
 extern const char autostartsh[];

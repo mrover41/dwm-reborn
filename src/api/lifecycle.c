@@ -5,6 +5,9 @@
 #include <signal.h>
 #include <stdlib.h>
 
+#include <X11/Xatom.h>
+#include <X11/cursorfont.h>
+
 #include <api/util.h>
 #include <enums/cursor.h>
 #include <types/args.h>
@@ -23,8 +26,8 @@
 #include <global.h>
 #include <config.h>
 
-static Drw *drw;
-static Clr **scheme;
+//static Drw *drw;
+//static Clr **scheme;
 
 void
 cleanup(void) {

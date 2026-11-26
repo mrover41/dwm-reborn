@@ -4,6 +4,10 @@
 #include <local/client.h>
 #include <local/monitor.h>
 #include <local/bar.h>
+#include <local/client_stack.h>
+#ifdef XINERAMA
+#include <X11/extensions/Xinerama.h>
+#endif
 #include <macros.h>
 
 #include <global.h>
@@ -174,6 +178,18 @@ dirtomon(int dir) {
 		for (m = mons; m->next != selmon; m = m->next);
 	return m;
 }
+
+#ifdef XINERAMA
+static int
+isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
+{
+	while (n--)
+		if (unique[n].x_org == info->x_org && unique[n].y_org == info->y_org
+		&& unique[n].width == info->width && unique[n].height == info->height)
+			return 0;
+	return 1;
+}
+#endif /* XINERAMA */
 
 int
 updategeom(void)

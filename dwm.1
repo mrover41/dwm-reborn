@@ -1,0 +1,44 @@
+.TH DWM 1 "dwm-VERSION" "dwm" "User Commands"
+.SH NAME
+dwm \- dynamic window manager
+.SH SYNOPSIS
+.B dwm
+.RB [ \-v ]
+.SH DESCRIPTION
+.B dwm
+is a dynamic window manager for X. It manages windows in tiled, monocle and
+floating layouts. Layouts can be applied dynamically, optimizing the
+environment for the application in use and the task performed.
+.PP
+.B dwm
+does not offer any graphical configuration; customization is done by editing
+config.h and recompiling.
+.SH OPTIONS
+.TP
+.B \-v
+Print version information to standard output and exit.
+.SH USAGE
+When
+.B dwm
+starts, the first workspace is selected. Every new window is assigned to the
+current workspace. Windows can be moved between workspaces with the keyboard
+and are tiled according to the active layout.
+.PP
+The status bar at the top of the screen displays workspace names, the current
+layout symbol and the root window name, which can be updated with
+.BR xsetroot (1).
+.SH CUSTOMIZATION
+.B dwm
+is customized by editing
+.I config.h
+and running
+.BR "make clean install" .
+.SH FILES
+.TP
+.I config.h
+Configuration header, symlinked to
+.IR include/config.h .
+.SH BUGS
+Please report bugs to the dwm mailing list or the project's issue tracker.
+.SH AUTHOR
+dwm was written by Anselm R. Garbe and contributors.

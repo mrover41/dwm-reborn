@@ -1,4 +1,3 @@
-/* See LICENSE file for copyright and license details. */
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -8,8 +7,7 @@
 #include <api/util.h>
 
 void
-die(const char *fmt, ...)
-{
+die(const char *fmt, ...) {
 	va_list ap;
 	int saved_errno;
 
@@ -27,8 +25,7 @@ die(const char *fmt, ...)
 }
 
 void *
-ecalloc(size_t nmemb, size_t size)
-{
+ecalloc(size_t nmemb, size_t size) {
 	void *p;
 
 	if (!(p = calloc(nmemb, size)))

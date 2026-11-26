@@ -4,8 +4,7 @@
 #include <stdio.h>
 
 #include <api/util.h>
-
-static int (*xerrorxlib)(Display *, XErrorEvent *);
+#include <global.h>
 
 int
 xerror(Display *dpy, XErrorEvent *ee) {

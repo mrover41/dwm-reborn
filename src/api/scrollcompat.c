@@ -1,95 +1,29 @@
+#include <stdlib.h>
+#include <stddef.h>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include <X11/XKBlib.h>
+
+#include <renderer/drw.h>
+#include <layouts/scrolltile.h>
+
+#include <global.h>
+#include <config.h>
+#include <macros.h>
+#include <api/util.h>
+#include <api/commands.h>
+#include <local/bar.h>
+#include <local/client.h>
+#include <local/focus.h>
+#include <local/geometry.h>
+#include <local/client_stack.h>
+#include <local/monitor.h>
+#include <local/lifecycle.h>
+
 /* scroll-compatible extras: scratchpad, modal resize, focus-mode toggle */
 
 static unsigned int scratchprevtag = 0;
 static int resizemode = 0;
-static int scrollx = 0; /* horizontal offset of the ribbon in pixels */
-
-struct ScrollEnt {
-	Client *c;
-	float wf;        /* width fraction of the monitor (0.5 = half screen) */
-	float savedwf;   /* wf before Mod+1 expansion */
-	int expanded;
-	struct ScrollEnt *next;
-};
-static struct ScrollEnt *scrollents;
-
-static struct ScrollEnt *
-scrollent(Client *c)
-{
-	struct ScrollEnt *e;
-
-	for (e = scrollents; e; e = e->next)
-		if (e->c == c)
-			return e;
-	e = ecalloc(1, sizeof(*e));
-	e->c = c;
-	e->wf = e->savedwf = 0.5f;
-	e->next = scrollents;
-	scrollents = e;
-	return e;
-}
-
-static void
-scrollremove(Client *c)
-{
-	struct ScrollEnt *e, **pp;
-
-	for (pp = &scrollents; (e = *pp); pp = &e->next)
-		if (e->c == c) {
-			*pp = e->next;
-			free(e);
-			return;
-		}
-}
-
-static int
-scrollwidth(struct ScrollEnt *e, Monitor *m)
-{
-	float f = e->expanded ? 1.0f : e->wf;
-	int w = (int)(m->ww * f);
-
-	if (w < m->ww / 8)
-		w = m->ww / 8;
-	if (w > m->ww)
-		w = m->ww;
-	return w;
-}
-
-/* Scrollable ribbon.
- * All windows keep their natural sequential coordinates (cumulative widths).
- * We only add a global scrollx offset to every window, exactly like panning a
- * long strip. scrollx is nudged just enough to keep the focused column visible.
- * No size hints here: columns keep their exact requested width. */
-static void
-scrolltile(Monitor *m)
-{
-	int cum = 0, w;
-	Client *c;
-	struct ScrollEnt *e;
-
-	for (c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
-		e = scrollent(c);
-		w = scrollwidth(e, m);
-		if (c == m->sel) {
-			if (cum < scrollx)
-				scrollx = cum;
-			else if (cum + w > scrollx + m->ww)
-				scrollx = cum + w - m->ww;
-		}
-		cum += w;
-	}
-
-	for (c = nexttiled(m->clients), cum = 0; c; c = nexttiled(c->next)) {
-		e = scrollent(c);
-		w = scrollwidth(e, m);
-		resizeclient(c,
-		             m->wx + cum - scrollx,
-		             m->wy,
-		             w - 2 * c->bw,
-		             m->wh - 2 * c->bw);
-		cum += w;
-	}
-}
 
 /* Same logic as scroll's maximize.lua: remember the width fraction,
  * expand to 1.0, restore on second press. */
@@ -275,4 +209,40 @@ toggleresizemode(const Arg *arg)
 		else
 			XUngrabKey(dpy, kc, 0, root);
 	}
+}
+
+void
+keypress(XEvent *e)
+{
+	unsigned int i;
+	KeySym keysym;
+	XKeyEvent *ev;
+
+	ev = &e->xkey;
+	keysym = XkbKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0, 0);
+
+	if (resizemode) {
+		if (keysym == XK_h || keysym == XK_Left) {
+			resizeby(&(Arg){ .i = 0 });
+			return;
+		} else if (keysym == XK_l || keysym == XK_Right) {
+			resizeby(&(Arg){ .i = 1 });
+			return;
+		} else if (keysym == XK_k || keysym == XK_Up) {
+			resizeby(&(Arg){ .i = 2 });
+			return;
+		} else if (keysym == XK_j || keysym == XK_Down) {
+			resizeby(&(Arg){ .i = 3 });
+			return;
+		} else if (keysym == XK_Return || keysym == XK_Escape) {
+			toggleresizemode(NULL);
+			return;
+		}
+	}
+
+	for (i = 0; i < LENGTH(keys); i++)
+		if (keysym == keys[i].keysym
+		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
+		&& keys[i].func)
+			keys[i].func(&(keys[i].arg));
 }
