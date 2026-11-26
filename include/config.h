@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <X11/keysym.h>
+#include <X11/XF86keysym.h>
 
 #include <types/rule.h>
 #include <types/input.h>
@@ -10,6 +11,8 @@
 
 #include <api/layout.h>
 #include <api/commands.h>
+#include <api/movestack.h>
+#include <api/scrollcompat.h>
 #include <local/mouse_actions.h>
 
 /* See LICENSE file for copyright and license details. */
@@ -54,14 +57,24 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 static const int refreshrate = 144;  /* refresh rate (per second) for client move/resize */
 
 #include <types/monitor.h>
-static const Layout layouts[] = {
+#ifdef DWM_CONFIG_LAYOUTS
+const Layout layouts[] = {
 	{ ">>>",      scrolltile, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ "[]=",      tile, NULL, NULL, NULL, NULL, NULL, NULL },
-	//{ "[\\]",     dwindle },
-	//{ "><>",      NULL },
-	//{ "[M]",      monocle },
-	//{ "[@]",      spiral },
+	{ "[]=",      tile,       NULL, NULL, NULL, NULL, NULL, NULL },
+	{ "[\\]",     dwindle,    NULL, NULL, NULL, NULL, NULL, NULL },
+	//{ "><>",    NULL,       NULL, NULL, NULL, NULL, NULL, NULL },
+	//{ "[M]",      monocle,    NULL, NULL, NULL, NULL, NULL, NULL },
+	//{ "[@]",      spiral,     NULL, NULL, NULL, NULL, NULL, NULL },
 };
+
+size_t
+layoutcount(void) {
+	return sizeof layouts / sizeof layouts[0];
+}
+#else
+extern const Layout layouts[];
+size_t layoutcount(void);
+#endif
 
 /* key definitions */
 #define MODKEY Mod4Mask
@@ -98,43 +111,41 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_c,          spawn,           SHCMD("pkill -x dwm") },
 	{ MODKEY|ShiftMask,             XK_e,          spawn,           SHCMD("touch $HOME/.dwm-exit; pkill -x dwm") },
 
-	/* workspaces: Mod+Up/Down switch, Mod+Shift+1..0 move window */
+	/* workspaces: Mod+1..0 view, Mod+Ctrl+1..0 toggle, Mod+Shift+1..0 move */
 	{ MODKEY,                       XK_Up,         shiftview,       {.i = -1 } },
 	{ MODKEY,                       XK_Down,       shiftview,       {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_1,          tag,             {.ui = 1 << 0 } },
-	{ MODKEY|ShiftMask,             XK_2,          tag,             {.ui = 1 << 1 } },
-	{ MODKEY|ShiftMask,             XK_3,          tag,             {.ui = 1 << 2 } },
-	{ MODKEY|ShiftMask,             XK_4,          tag,             {.ui = 1 << 3 } },
-	{ MODKEY|ShiftMask,             XK_5,          tag,             {.ui = 1 << 4 } },
-	{ MODKEY|ShiftMask,             XK_6,          tag,             {.ui = 1 << 5 } },
-	{ MODKEY|ShiftMask,             XK_7,          tag,             {.ui = 1 << 6 } },
-	{ MODKEY|ShiftMask,             XK_8,          tag,             {.ui = 1 << 7 } },
-	{ MODKEY|ShiftMask,             XK_9,          tag,             {.ui = 1 << 8 } },
-	{ MODKEY|ShiftMask,             XK_0,          tag,             {.ui = 1 << 9 } },
+	TAGKEYS(1, 0)
+	TAGKEYS(2, 1)
+	TAGKEYS(3, 2)
+	TAGKEYS(4, 3)
+	TAGKEYS(5, 4)
+	TAGKEYS(6, 5)
+	TAGKEYS(7, 6)
+	TAGKEYS(8, 7)
+	TAGKEYS(9, 8)
+	TAGKEYS(0, 9)
 
 	/* focus / move containers — endless ribbon inside current workspace */
-	//{ MODKEY,                       XK_Left,       cyclefocus,      {.i = -1 } },
-	//{ MODKEY,                       XK_Right,      cyclefocus,      {.i = +1 } },
-	//{ MODKEY|ShiftMask,             XK_Left,       movestack,       {.i = -1 } },
-	//{ MODKEY|ShiftMask,             XK_Right,      movestack,       {.i = +1 } },
+	{ MODKEY,                       XK_Left,       cyclefocus,      {.i = -1 } },
+	{ MODKEY,                       XK_Right,      cyclefocus,      {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_Left,       movestack,       {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_Right,      movestack,       {.i = +1 } },
 
 	/* layouts / window state */
-	//{ MODKEY,                       XK_1,          scrollmax,       {0} },
+	{ MODKEY,                       XK_1,          scrollmax,       {0} },
 	{ MODKEY,                       XK_s,          setlayout,       {.v = &layouts[0]} },
 	{ MODKEY,                       XK_t,          setlayout,       {.v = &layouts[1]} },
 	{ MODKEY,                       XK_f,          togglefloating,  {0} },
-	/* Win+Space: XKB switches eu/ru (autostart_blocking.sh) and this toggles focus,
-	 * exactly like scroll's xkb_options + focus mode_toggle on $mod+space */
-	//{ MODKEY,                       XK_space,      togglefocusmode, {0} },
+	{ MODKEY,                       XK_space,      togglefocusmode, {0} },
 	{ MODKEY,                       XK_F11,        togglefullscr,   {0} },
-	//{ MODKEY,                       XK_r,          toggleresizemode,{0} },
+	{ MODKEY,                       XK_r,          toggleresizemode,{0} },
 
 	/* scratchpad (hidden last tag) */
-	//{ MODKEY|ShiftMask,             XK_minus,      scratchpush,     {0} },
-	//{ MODKEY,                       XK_minus,      scratchshow,     {0} },
+	{ MODKEY|ShiftMask,             XK_minus,      scratchpush,     {0} },
+	{ MODKEY,                       XK_minus,      scratchshow,     {0} },
 
 	/* audio / media / brightness (same keys as scroll) */
-	/*{ 0, XF86XK_AudioMute,        spawn, SHCMD("pactl set-sink-mute @DEFAULT_SINK@ toggle") },
+	{ 0, XF86XK_AudioMute,        spawn, SHCMD("pactl set-sink-mute @DEFAULT_SINK@ toggle") },
 	{ 0, XF86XK_AudioLowerVolume, spawn, SHCMD("pactl set-sink-volume @DEFAULT_SINK@ -5%") },
 	{ 0, XF86XK_AudioRaiseVolume, spawn, SHCMD("pactl set-sink-volume @DEFAULT_SINK@ +5%") },
 	{ 0, XF86XK_AudioMicMute,     spawn, SHCMD("pactl set-source-mute @DEFAULT_SOURCE@ toggle") },
@@ -144,7 +155,7 @@ static const Key keys[] = {
 	{ 0, XF86XK_AudioNext,        spawn, SHCMD("playerctl next") },
 	{ 0, XF86XK_AudioStop,        spawn, SHCMD("playerctl stop") },
 	{ 0, XF86XK_MonBrightnessDown, spawn, SHCMD("brightnessctl set 5%-") },
-	{ 0, XF86XK_MonBrightnessUp,   spawn, SHCMD("brightnessctl set 5%+") },*/
+	{ 0, XF86XK_MonBrightnessUp,   spawn, SHCMD("brightnessctl set 5%+") },
 };
 
 /* button definitions */
@@ -158,8 +169,8 @@ static const Button buttons[] = {
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
-	//{ ClkClientWin,         MODKEY,         Button4,        cyclefocus,     {.i = -1 } },
-	//{ ClkClientWin,         MODKEY,         Button5,        cyclefocus,     {.i = +1 } },
+	{ ClkClientWin,         MODKEY,         Button4,        cyclefocus,     {.i = -1 } },
+	{ ClkClientWin,         MODKEY,         Button5,        cyclefocus,     {.i = +1 } },
 	{ ClkTagBar,            0,              Button1,        view,           {0} },
 	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },

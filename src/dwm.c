@@ -1,3 +1,6 @@
+#define DWM_CONFIG_LAYOUTS
+#include <config.h>
+
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>

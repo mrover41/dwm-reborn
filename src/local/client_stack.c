@@ -9,28 +9,44 @@
 #include <global.h>
 #include <config.h>
 
-void attach(Client *c) {
-	if (selmon->lt[selmon->sellt]->attach != NULL) {
-		selmon->lt[selmon->sellt]->attach(c);
+void
+attach(Client *c) {
+	if (c->mon->lt[c->mon->sellt]->attach) {
+		c->mon->lt[c->mon->sellt]->attach(c);
 		return;
 	}
 	c->next = c->mon->clients;
 	c->mon->clients = c;
 }
-void push_focus(Client *c) {
-	if (selmon->lt[selmon->sellt]->push_focus != NULL) {
-		selmon->lt[selmon->sellt]->push_focus(c);
+
+void
+push_focus(Client *c) {
+	if (c->mon->lt[c->mon->sellt]->push_focus) {
+		c->mon->lt[c->mon->sellt]->push_focus(c);
 		return;
 	}
 	c->snext = c->mon->stack;
 	c->mon->stack = c;
 }
-void detach(Client *c) {
-	if (selmon->lt[selmon->sellt]->push_focus != NULL) {
-		selmon->lt[selmon->sellt]->push_focus(c);
+
+void
+detach(Client *c) {
+	if (c->mon->lt[c->mon->sellt]->detach) {
+		c->mon->lt[c->mon->sellt]->detach(c);
 		return;
 	}
+	Client **tc;
 
+	for (tc = &c->mon->clients; *tc && *tc != c; tc = &(*tc)->next);
+	*tc = c->next;
+}
+
+void
+detachstack(Client *c) {
+	if (c->mon->lt[c->mon->sellt]->detachstack) {
+		c->mon->lt[c->mon->sellt]->detachstack(c);
+		return;
+	}
 	Client **tc, *t;
 
 	for (tc = &c->mon->stack; *tc && *tc != c; tc = &(*tc)->snext);
@@ -41,39 +57,25 @@ void detach(Client *c) {
 		c->mon->sel = t;
 	}
 }
-void detachstack(Client *c) {
-	if (selmon->lt[selmon->sellt]->detachstack != NULL) {
-		selmon->lt[selmon->sellt]->detachstack(c);
+
+void
+pop(Client *c) {
+	if (c->mon->lt[c->mon->sellt]->pop) {
+		c->mon->lt[c->mon->sellt]->pop(c);
 		return;
 	}
-
-	Client **tc, *t;
-
-	for (tc = &c->mon->stack; *tc && *tc != c; tc = &(*tc)->snext);
-	*tc = c->snext;
-
-	if (c == c->mon->sel) {
-		for (t = c->mon->stack; t && !ISVISIBLE(t); t = t->snext);
-		c->mon->sel = t;
-	}
-}
-void pop(Client *c) {
-	if (selmon->lt[selmon->sellt]->pop != NULL) {
-		selmon->lt[selmon->sellt]->pop(c);
-		return;
-	}
-
 	detach(c);
 	attach(c);
 	focus(c);
 	arrange(c->mon);
 }
-void restack(Monitor *m) {
-	if (selmon->lt[selmon->sellt]->restack != NULL) {
-		selmon->lt[selmon->sellt]->restack(m);
+
+void
+restack(Monitor *m) {
+	if (m->lt[m->sellt]->restack) {
+		m->lt[m->sellt]->restack(m);
 		return;
 	}
-
 	Client *c;
 	XEvent ev;
 	XWindowChanges wc;

@@ -1,3 +1,5 @@
+#include <api/movestack.h>
+
 #include <global.h>
 #include <config.h>
 #include <macros.h>

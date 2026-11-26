@@ -120,12 +120,10 @@ manage(Window w, XWindowAttributes *wa)
 		c->isfloating = c->oldstate = trans != None || c->isfixed;
 	if (c->isfloating)
 		XRaiseWindow(dpy, c->win);
-	/*if (c->mon->lt[c->mon->sellt]->arrange == scrolltile) {
+	if (c->mon->lt[c->mon->sellt]->arrange == scrolltile)
 		attachaside(c);
-	} else {
+	else
 		attach(c);
-	}*/ 
-	attach(c);
 	push_focus(c); // attachstack(c); in original version
 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
 		(unsigned char *) &(c->win), 1);
@@ -145,7 +143,7 @@ unmanage(Client *c, int destroyed)
 	Monitor *m = c->mon;
 	XWindowChanges wc;
 
-	//scrollremove(c); //TODO: fix scrolling
+	scrollremove(c);
 	detach(c);
 	detachstack(c);
 	if (!destroyed) {

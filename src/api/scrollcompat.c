@@ -12,6 +12,7 @@
 #include <macros.h>
 #include <api/util.h>
 #include <api/commands.h>
+#include <api/scrollcompat.h>
 #include <local/bar.h>
 #include <local/client.h>
 #include <local/focus.h>
@@ -27,7 +28,7 @@ static int resizemode = 0;
 
 /* Same logic as scroll's maximize.lua: remember the width fraction,
  * expand to 1.0, restore on second press. */
-static void
+void
 scrollmax(const Arg *arg)
 {
 	Client *c = selmon->sel;
@@ -50,7 +51,7 @@ scrollmax(const Arg *arg)
 	arrange(selmon);
 }
 
-static void
+void
 scratchpush(const Arg *arg)
 {
 	Client *c = selmon->sel;
@@ -66,7 +67,7 @@ scratchpush(const Arg *arg)
 	arrange(selmon);
 }
 
-static void
+void
 scratchshow(const Arg *arg)
 {
 	Client *c;
@@ -87,7 +88,7 @@ scratchshow(const Arg *arg)
 	}
 }
 
-static void
+void
 togglefocusmode(const Arg *arg)
 {
 	Client *c, *target = NULL;
@@ -106,7 +107,7 @@ togglefocusmode(const Arg *arg)
 	}
 }
 
-static void
+void
 cyclefocus(const Arg *arg)
 {
 	Client *c, *target = NULL, *first = NULL, *last = NULL;
@@ -189,7 +190,7 @@ resizeby(const Arg *arg)
 	drawbar(selmon);
 }
 
-static void
+void
 toggleresizemode(const Arg *arg)
 {
 	static const KeySym resizekeys[] = {

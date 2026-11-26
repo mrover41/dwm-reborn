@@ -17,3 +17,4 @@ void toggleview(const Arg *arg);
 void view(const Arg *arg);
 void zoom(const Arg *arg);
 void shiftview(const Arg *arg);
+void cyclelayout(const Arg *arg);
