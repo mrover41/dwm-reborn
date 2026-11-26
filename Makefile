@@ -14,13 +14,12 @@ all: $(TARGET)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c config.h config.mk
 	@mkdir -p $(dir $@)
-	${CC} -c ${CFLAGS} $< -o $@
-
-#config.h:
-#	cp config.def.h $@
+	@printf '  CC      %s\n' $<
+	@${CC} -c ${CFLAGS} $< -o $@
 
 $(TARGET): ${OBJ}
-	${CC} -o $@ ${OBJ} ${LDFLAGS}
+	@printf '  LD      %s\n' $@
+	@${CC} -o $@ ${OBJ} ${LDFLAGS}
 
 clean:
 	rm -rf $(BUILDDIR) dwm-${VERSION}.tar.gz

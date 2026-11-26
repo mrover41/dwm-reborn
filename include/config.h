@@ -1,5 +1,10 @@
 #pragma once
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 #include <stdio.h>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
@@ -176,3 +181,8 @@ static const Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
+
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
