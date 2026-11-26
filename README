@@ -1,48 +1,230 @@
-dwm - dynamic window manager
-============================
-dwm is an extremely fast, small, and dynamic window manager for X.
+dwm-reborn
+==========
 
+A fork of dwm 6.8 with the sources split into separate translation units and a
+horizontal scrolling ribbon instead of the usual master/stack layout. Layout
+code lives outside the window manager core, while the user configuration is
+still in `include/config.h`.
+
+Highlights:
+
+* one `.c`/`.h` pair per layout in `src/layouts/` and `include/layouts/`;
+* `scrolltile` as the default layout: windows are placed sequentially and
+  `cyclefocus` pans the visible area;
+* `cyclefocus`, `movestack`, `scrollmax`, scratchpad and modal resize;
+* `XF86XK_*` media/brightness keys and bindings for the local setup;
+* `showbar = 0` by default, so the layout symbol is not drawn.
 
 Requirements
 ------------
-In order to build dwm you need the Xlib header files.
 
+To build you need:
+
+* a C99 compiler (`cc`);
+* Xlib, Xinerama, Xft and fontconfig;
+* XKB (used by `keypress()`).
+
+Some keybindings expect external programs: `kitty`, `rofi`, `nautilus`,
+`maim`, `flameshot`, `magick`, `xclip`, `pactl`, `playerctl`, `brightnessctl`
+and `$HOME/.local/bin/xclip-history-menu`. They are not needed for building.
 
 Installation
 ------------
-Edit config.mk to match your local setup (dwm is installed into
-the /usr/local namespace by default).
 
-Afterwards enter the following command to build and install dwm (if
-necessary as root):
+Paths and flags are defined in `config.mk`. By default:
 
-    make clean install
+```text
+PREFIX    = /usr/local
+MANPREFIX = /usr/local/share/man
+```
 
+Build:
 
-Running dwm
------------
-Add the following line to your .xinitrc to start dwm using startx:
+```sh
+make
+```
 
-    exec dwm
+Install:
 
-In order to connect dwm to a specific display, make sure that
-the DISPLAY environment variable is set correctly, e.g.:
+```sh
+sudo make install
+```
 
-    DISPLAY=foo.bar:1 exec dwm
+This installs:
 
-(This will start dwm on display :1 of the host foo.bar.)
+```text
+/usr/local/bin/dwm
+/usr/local/share/man/man1/dwm.1
+```
 
-In order to display status info in the bar, you can do something
-like this in your .xinitrc:
+Other targets:
 
-    while xsetroot -name "`date` `uptime | sed 's/.*,//'`"
-    do
-    	sleep 1
-    done &
-    exec dwm
+```sh
+make clean              # remove build/ and the tarball
+make dist               # create dwm-6.8.tar.gz
+make BUILDDIR=tmp/build # build into another directory
+```
 
+Running
+-------
+
+A restart-safe `.xinitrc` can be:
+
+```sh
+#!/bin/sh
+while true; do
+    /usr/local/bin/dwm
+    [ -f "$HOME/.dwm-exit" ] && { rm -f "$HOME/.dwm-exit"; break; }
+    sleep 1
+done
+```
+
+Restart dwm or the X session after `make install`. To see which binary is
+actually running:
+
+```sh
+pgrep -a dwm
+md5sum /usr/local/bin/dwm build/dwm
+```
 
 Configuration
 -------------
-The configuration of dwm is done by creating a custom config.h
-and (re)compiling the source code.
+
+All user configuration is in `include/config.h`. Rebuild and reinstall after
+editing it.
+
+### Layouts
+
+The `layouts[]` array stays in `config.h`. It is wrapped in a guard so that
+only one copy exists in the final binary:
+
+```c
+#ifdef DWM_CONFIG_LAYOUTS
+const Layout layouts[] = { ... };
+#else
+extern const Layout layouts[];
+#endif
+```
+
+`DWM_CONFIG_LAYOUTS` is defined only in `src/dwm.c`, before `config.h` is
+included. Do not make `layouts[]` static and do not define it in another file:
+each copy would have different addresses, and `cyclelayout()` would always
+select the first layout.
+
+To add a layout:
+
+1. create `include/layouts/foo.h` with `void foo(Monitor *m);`
+2. implement it in `src/layouts/foo.c`
+3. include the header from `include/api/layout.h`
+4. add an entry to `layouts[]` in `include/config.h`
+
+Currently active layouts:
+
+| Symbol | Layout | Implementation |
+| ------ | ------ | -------------- |
+| `>>>` | `scrolltile` | `src/layouts/scrolltile.c` |
+| `[]=` | `tile` | `src/layouts/tile.c` |
+| `[\]` | `dwindle` | `src/layouts/dwindle.c` |
+
+`monocle` and `spiral` are implemented in `src/layouts/monocle.c` and
+`src/layouts/spiral.c`, both using `fibonacci.c`. They are commented out in
+`layouts[]`.
+
+`cyclelayout(const Arg *arg)` is implemented in `src/api/layoutctl.c`. Bind it
+if you want cyclic layout switching:
+
+```c
+{ MODKEY, XK_comma,  cyclelayout, {.i = -1 } },
+{ MODKEY, XK_period, cyclelayout, {.i = +1 } },
+```
+
+`+1` selects the next layout, `-1` the previous one. Entries with
+`arrange == NULL` are skipped.
+
+Keybindings
+-----------
+
+`MODKEY` is `Mod4Mask` (Super/Win).
+
+### Applications
+
+| Key | Action |
+| --- | ------ |
+| `Mod+Return` | terminal (`kitty`) |
+| `Mod+D` | `rofi -show drun` |
+| `Mod+E` | `nautilus` |
+| `Mod+V` | clipboard menu |
+
+### Screenshots
+
+| Key | Action |
+| --- | ------ |
+| `Print` | full screen to clipboard |
+| `Ctrl+Print` | selection to clipboard |
+| `Mod+Print` | `flameshot gui` |
+
+### Session
+
+| Key | Action |
+| --- | ------ |
+| `Alt+F4` | close window |
+| `Mod+Shift+C` | restart dwm |
+| `Mod+Shift+E` | exit session |
+
+### Tags
+
+| Key | Action |
+| --- | ------ |
+| `Mod+1` … `Mod+0` | view tag |
+| `Mod+Ctrl+1` … `Mod+0` | toggle tag in view |
+| `Mod+Shift+1` … `Mod+0` | move focused window to tag |
+| `Mod+Ctrl+Shift+1` … `Mod+0` | toggle tag on focused window |
+| `Mod+Up` / `Mod+Down` | previous/next tag via `shiftview` |
+
+The last tag, `"S"`, is a hidden scratchpad. `shiftview` cycles through all
+eleven tags, including `S`.
+
+### Focus and layout
+
+| Key | Action |
+| --- | ------ |
+| `Mod+Left` / `Mod+Right` | `cyclefocus` |
+| `Mod+Shift+Left` / `Mod+Shift+Right` | `movestack` |
+| `Mod+Mouse4` / `Mod+Mouse5` | `cyclefocus` |
+| `Mod+1` | `scrollmax` |
+| `Mod+S` | select `layouts[0]` |
+| `Mod+T` | select `layouts[1]` |
+| `Mod+F` | toggle floating |
+| `Mod+Space` | toggle focus mode |
+| `Mod+F11` | toggle fullscreen |
+| `Mod+R` | modal resize: `h/j/k/l`, arrows, `Return`/`Escape` |
+
+### Scratchpad
+
+| Key | Action |
+| --- | ------ |
+| `Mod+Shift+Minus` | `scratchpush` |
+| `Mod+Minus` | `scratchshow` |
+
+### Media
+
+`XF86XK_AudioMute`, `AudioLowerVolume`, `AudioRaiseVolume`, `MicMute`,
+`Play`, `Pause`, `Prev`, `Next`, `Stop`, `MonBrightnessDown` and
+`MonBrightnessUp` are bound to `pactl`, `playerctl` and `brightnessctl`.
+
+Source layout
+-------------
+
+```text
+include/config.h        tags, keys, layouts, rules
+include/api/            public APIs
+include/layouts/        layout headers
+include/local/          internal headers
+include/types/          Monitor, Client, Layout, Drw, ...
+
+src/dwm.c               main; only unit defining DWM_CONFIG_LAYOUTS
+src/api/                commands, lifecycle, scrollcompat, movestack, ...
+src/layouts/            tile, monocle, fibonacci, dwindle, spiral, scrolltile
+src/local/              client, monitor, handlers, geometry, bar, ...
+src/renderer/           drw.c
+```
