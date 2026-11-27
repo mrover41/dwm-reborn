@@ -13,3 +13,6 @@ struct ScrollEnt {
 void scrolltile(Monitor *m);
 struct ScrollEnt *scrollent(Client *c);
 void scrollremove(Client *c);
+
+void attachaside(Client *);
+void attachlast(Client *);

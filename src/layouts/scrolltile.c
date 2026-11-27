@@ -5,6 +5,9 @@
 #include <api/util.h>
 #include <local/focus.h>
 #include <local/geometry.h>
+#include <local/handlers.h>
+
+#include <macros.h>
 
 static int scrollx = 0; /* horizontal offset of the ribbon in pixels */
 static struct ScrollEnt *scrollents;
@@ -21,6 +24,8 @@ scrollent(Client *c) {
 	e->wf = e->savedwf = 0.5f;
 	e->next = scrollents;
 	scrollents = e;
+
+	c->layout_destroy = scrollremove;
 	return e;
 }
 
@@ -81,4 +86,27 @@ scrolltile(Monitor *m) {
 		             m->wh - 2 * c->bw);
 		cum += w;
 	}
+}
+
+void
+attachaside(Client *c) {
+	Client *at = c->mon->sel;
+
+	if (!at || at == c || at->isfloating || !ISVISIBLEONTAG(at, c->tags))
+		at = nexttagged(c);
+	if (!at) {
+		attachlast(c);
+		return;
+	}
+	c->next = at->next;
+	at->next = c;
+}
+
+void
+attachlast(Client *c) {
+	Client **pp;
+
+	for (pp = &c->mon->clients; *pp; pp = &(*pp)->next);
+	*pp = c;
+	c->next = NULL;
 }

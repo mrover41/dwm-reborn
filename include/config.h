@@ -33,7 +33,8 @@ static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+//static const char col_cyan[]        = "#005577";
+static const char col_cyan[]        = "#fe8019";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -63,13 +64,14 @@ static const int refreshrate = 144;  /* refresh rate (per second) for client mov
 
 #include <types/monitor.h>
 #ifdef DWM_CONFIG_LAYOUTS
-const Layout layouts[] = {
-	{ ">>>",      scrolltile, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ "[]=",      tile,       NULL, NULL, NULL, NULL, NULL, NULL },
-	{ "[\\]",     dwindle,    NULL, NULL, NULL, NULL, NULL, NULL },
-	//{ "><>",    NULL,       NULL, NULL, NULL, NULL, NULL, NULL },
-	//{ "[M]",      monocle,    NULL, NULL, NULL, NULL, NULL, NULL },
-	//{ "[@]",      spiral,     NULL, NULL, NULL, NULL, NULL, NULL },
+const Layout layouts[] = { //see include/types/monitor.h
+	/*symbol      layout      attach       push_focus  detach  detach_stack     pop   restack*/
+	{ ">>>",      scrolltile, attachaside, NULL,       NULL,   NULL,            NULL, NULL },
+	{ "[]=",      tile,       NULL,        NULL,       NULL,   NULL,            NULL, NULL },
+	{ "[\\]",     dwindle,    NULL,        NULL,       NULL,   NULL,            NULL, NULL },
+	//{ "><>",    NULL,       NULL,        NULL,       NULL,   NULL,            NULL, NULL },
+	//{ "[M]",    monocle,    NULL,        NULL,       NULL,   NULL,            NULL, NULL },
+	//{ "[@]",    spiral,     NULL,        NULL,       NULL,   NULL,            NULL, NULL },
 };
 
 size_t
@@ -84,10 +86,7 @@ size_t layoutcount(void);
 /* key definitions */
 #define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -119,16 +118,16 @@ static const Key keys[] = {
 	/* workspaces: Mod+1..0 view, Mod+Ctrl+1..0 toggle, Mod+Shift+1..0 move */
 	{ MODKEY,                       XK_Up,         shiftview,       {.i = -1 } },
 	{ MODKEY,                       XK_Down,       shiftview,       {.i = +1 } },
-	TAGKEYS(1, 0)
-	TAGKEYS(2, 1)
-	TAGKEYS(3, 2)
-	TAGKEYS(4, 3)
-	TAGKEYS(5, 4)
-	TAGKEYS(6, 5)
-	TAGKEYS(7, 6)
-	TAGKEYS(8, 7)
-	TAGKEYS(9, 8)
-	TAGKEYS(0, 9)
+	TAGKEYS(XK_1, 0)
+	TAGKEYS(XK_2, 1)
+	TAGKEYS(XK_3, 2)
+	TAGKEYS(XK_4, 3)
+	TAGKEYS(XK_5, 4)
+	TAGKEYS(XK_6, 5)
+	TAGKEYS(XK_7, 6)
+	TAGKEYS(XK_8, 7)
+	TAGKEYS(XK_9, 8)
+	TAGKEYS(XK_0, 9)
 
 	/* focus / move containers — endless ribbon inside current workspace */
 	{ MODKEY,                       XK_Left,       cyclefocus,      {.i = -1 } },

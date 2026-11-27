@@ -39,32 +39,6 @@ void (*handler[LASTEvent]) (XEvent *) = {
 };
 
 void
-attachaside(Client *c) {
-	Client *at = c->mon->sel;
-
-	/* New window goes right after the active one in the ribbon.
-	 * Fall back to the old behaviour if the active window cannot host it. */
-	if (!at || at == c || at->isfloating || !ISVISIBLEONTAG(at, c->tags))
-		at = nexttagged(c);
-	if (!at) {
-		attachlast(c);
-		return;
-	}
-	c->next = at->next;
-	at->next = c;
-}
-
-void
-attachlast(Client *c)
-{
-	Client **pp;
-
-	for (pp = &c->mon->clients; *pp; pp = &(*pp)->next);
-	*pp = c;
-	c->next = NULL;
-}
-
-void
 buttonpress(XEvent *e)
 {
 	unsigned int i, x, click;
@@ -284,8 +258,7 @@ motionnotify(XEvent *e)
 }
 
 void
-propertynotify(XEvent *e)
-{
+propertynotify(XEvent *e) {
 	Client *c;
 	Window trans;
 	XPropertyEvent *ev = &e->xproperty;
@@ -321,8 +294,7 @@ propertynotify(XEvent *e)
 }
 
 void
-unmapnotify(XEvent *e)
-{
+unmapnotify(XEvent *e) {
 	Client *c;
 	XUnmapEvent *ev = &e->xunmap;
 
@@ -335,8 +307,7 @@ unmapnotify(XEvent *e)
 }
 
 void
-focusin(XEvent *e)
-{
+focusin(XEvent *e) {
 	XFocusChangeEvent *ev = &e->xfocus;
 
 	if (selmon->sel && ev->window != selmon->sel->win)

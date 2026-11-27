@@ -40,6 +40,8 @@ struct Client {
 	Client *snext;
 	Monitor *mon;
 	Window win;
+
+	void (*layout_destroy)(Client *); //TODO: mayby it`s must be refactored
 };
 
 struct Layout {
